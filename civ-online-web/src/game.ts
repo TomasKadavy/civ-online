@@ -3,8 +3,7 @@ import { GameStateService } from "./game-logic/game-state-service";
 import { GameRenderer } from "./rendering/game-renderer";
 import { MenuRenderer } from "./rendering/menu-renderer";
 import { Renderer } from "./rendering/renderer";
-import { Button, Clickable } from "./UI/button";
-import { Vector } from "./UI/vector";
+import { URL, WebSocketService } from "./web-socket/web-socket-service";
 
 // The main game class having all the game states and logic
 export class Game {
@@ -12,12 +11,14 @@ export class Game {
     ctx: CanvasRenderingContext2D;
     currentRenderer: Renderer;
     gameState: GameStateService;
+    webSocketService: WebSocketService;
 
     constructor(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
         this.eventListeners = new EventListeners(ctx, this);
         this.currentRenderer = new MenuRenderer(ctx, this);
-        this.gameState = new GameStateService();
+        this.webSocketService = new WebSocketService(URL, this);
+        this.gameState = new GameStateService(this.webSocketService);
     }
 
     // Starts the game loop
@@ -56,6 +57,10 @@ export class Game {
 
     startActualGame() {
         this.currentRenderer = new GameRenderer(this.ctx, this.gameState, this);
+    }
+
+    handleSocketMessage(event: MessageEvent) {
+        this.gameState.handleSocketMessage(event);
     }
 
     //The game loop using requestAnimationFrame
