@@ -24,6 +24,7 @@ export class MenuRenderer implements Renderer {
             'Play mulitplayer',
             () => {
                 this.game.startActualGame();
+                this.changeRightMenu();
             }
         ));
     }
@@ -38,5 +39,16 @@ export class MenuRenderer implements Renderer {
         this.clickables.forEach((clickable) => {
             clickable.resize();
         });
+    }
+
+    private changeRightMenu() {
+        const menuWrapper = document.getElementById('menu-wrapper');
+        const gameWrapper = document.getElementById('game-wrapper');
+        if (menuWrapper) {
+            menuWrapper.style.display = 'none';
+        }
+        if (gameWrapper) {
+            gameWrapper.style.display = 'flex';
+        }   
     }
 }

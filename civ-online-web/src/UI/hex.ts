@@ -72,6 +72,10 @@ export default class Hex implements Clickable {
         this.ctx.closePath();
         this.ctx.fill();
 
+        this.ctx.strokeStyle = 'gray';
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+
         this.ctx.fillStyle = HEX.fillColor;
         this.ctx.font = HEX.font;
         this.ctx.textAlign = 'center';
@@ -81,7 +85,7 @@ export default class Hex implements Clickable {
 
     renderPlayerTitle(player: PlayerService) {
         // Slightly smaller hexagon
-        const hexHeight = this.height * 0.8;
+        const hexHeight = this.height * 0.9;
         const hexWidth = Math.sqrt(3) / 2 * hexHeight;
 
         const offsetX = (this.width - hexWidth) / 2;

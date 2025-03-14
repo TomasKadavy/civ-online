@@ -4,13 +4,33 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="/src/menu.css" />
+    <link rel="stylesheet" href="/src/header.css" />
+    <link rel="stylesheet" href="/src/game.css" />
     <title>Civ-online</title>
   </head>
   <body>
+    <header class="header-panel">
+      <h1>CIV-ONLINE</h1>
+    </header>
+    <!-- CANVAS -->
     <div id="wrapper">
       <div id="canvas-wrapper">
         <canvas id="game" width="1000" height="800"></canvas>
       </div>
+
+      <!-- MENU -->
+      <div id="menu-wrapper">
+        <h2>Settings</h2>
+
+      </div>
+
+      <!-- GAME -->
+      <div id="game-wrapper">
+        <civ-button text="My civ-button"></civ-button>
+        <civ-label value="5" text="gold"></civ-label>
+      </div>
+  
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
