@@ -1,0 +1,14 @@
+#lobby-id {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+  
+#lobby-id:focus {
+    border-color: #333;
+    outline: none;
+}

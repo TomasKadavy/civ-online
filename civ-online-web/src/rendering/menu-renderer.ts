@@ -7,6 +7,8 @@ export class MenuRenderer implements Renderer {
     ctx: CanvasRenderingContext2D;
     game: Game;
 
+    gameId: string = '';
+
     constructor(ctx: CanvasRenderingContext2D, game: Game) {
         this.ctx = ctx;
         this.game = game;
@@ -14,6 +16,11 @@ export class MenuRenderer implements Renderer {
         const canvasWidth = this.ctx.canvas.width;
         const buttonWidth = 600;
         const buttonHeight = 150;
+
+        document.getElementById('lobby-id')?.addEventListener('input', (event) => {
+            const target = event.target as HTMLInputElement;
+            this.gameId = target.value;
+        });
 
         this.clickables.push(new Button(
             this.ctx,
@@ -23,7 +30,11 @@ export class MenuRenderer implements Renderer {
             buttonHeight,
             'Play mulitplayer',
             () => {
-                this.game.startActualGame();
+                if (this.gameId === '') {
+                    alert('Please enter a game ID');
+                    return;
+                }
+                this.game.startActualGame(this.gameId);
                 this.changeRightMenu();
             }
         ));

@@ -8,15 +8,20 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-
 public class GameWebSocket extends TextWebSocketHandler {
 
     private final List<WebSocketSession> sessions = new ArrayList<>();
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) {
+    public void afterConnectionEstablished(WebSocketSession session) throws IOException {
         sessions.add(session);
         System.out.println("New connection established: " + session.getId());
+        try {
+            GameMessage message = new GameMessage("connection", session.getId());
+            session.sendMessage(new TextMessage(message.toString()));
+        } catch (Exception e) {
+            System.out.println("Error sending message to " + session.getId() + ": " + e.getMessage());
+        }
     }
 
     @Override

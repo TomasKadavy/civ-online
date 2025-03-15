@@ -1,3 +1,4 @@
+import { Game } from "../game";
 import { WebSocketService } from "../web-socket/web-socket-service";
 import { PlayerService } from "./player-service";
 
@@ -6,9 +7,11 @@ export class GameStateService {
     redPlayer: PlayerService;
     currentPlayer: PlayerService;
     webSocketService: WebSocketService;
+    game: Game;
     hasSelected = false;
 
-    constructor(webSocket: WebSocketService) {
+    constructor(webSocket: WebSocketService, game: Game) {
+        this.game = game;
         this.bluePlayer = new PlayerService('Tom', 'blue');
         this.redPlayer = new PlayerService('Petr', 'red');
         this.currentPlayer = this.bluePlayer;
@@ -31,22 +34,26 @@ export class GameStateService {
         }
 
         this.currentPlayer.addHex(hexIndex);
-        this.webSocketService.sendMessage(`hexClicked ${hexIndex}`);
+        this.webSocketService.sendMessage({ type: 'event', gameId: this.game.gameId, message: hexIndex.toString() });
         this.changeTurn();
         this.hasSelected = true;
     }
 
     handleSocketMessage(event: MessageEvent) {
-        const message = event.data;
-        const [command, payload] = message.split(' ');
-        switch (command) {
-            case 'hexClicked':
-                this.currentPlayer.addHex(parseInt(payload));
+        const JSONMessage = JSON.parse(event.data) as { type: string, message: string };
+        console.log("GameStateService received message:", event.data, JSONMessage);
+
+        switch (JSONMessage.type) {
+            case 'connection':
+                this.webSocketService.webSocketId = JSONMessage.message;
+                break;
+            case 'event':
+                this.currentPlayer.addHex(parseInt(JSONMessage.message));
                 this.changeTurn();
                 this.hasSelected = false;
                 break;
             default:
-                console.error('Unknown command:', command);
+                console.error('Unknown type:', JSONMessage.type);
         }
     }
 
