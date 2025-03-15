@@ -1,47 +1,13 @@
 import { Game } from "../game";
 import { GameStateService } from "../game-logic/game-state-service";
 import { Clickable } from "../UI/button";
-import Hex from "../UI/hex";
-import { GameOverlayRenderer } from "./game-overlay-renderer";
-import { Renderer } from "./renderer";
+import { Hex } from "../UI/hex";
 
-export class GameRenderer implements Renderer {
-    ctx: CanvasRenderingContext2D;
-    gameState: GameStateService;
-    game: Game;
-    gameOverlayRenderer: GameOverlayRenderer;
+export class GameRenderer {
+    static hexes: Hex[] = [];
+    static clickables: Clickable[] = [];
 
-    hexes: Hex[] = [];
-    clickables: Clickable[] = [];
-
-    constructor(ctx: CanvasRenderingContext2D, gameState: GameStateService, game: Game) {
-        this.ctx = ctx;
-        this.game = game;
-        this.gameOverlayRenderer = new GameOverlayRenderer(ctx, game);
-        this.gameState = gameState;
-
-        this.initialize();
-    }
-
-    render(): void {
-        // render all hexes
-        for (const hex of this.hexes) {
-            hex.render();
-        }
-
-        // render game menu overlay
-        this.gameOverlayRenderer.render();
-
-        // render game titles
-        this.gameState.bluePlayer.renderTiles(this.hexes);
-        this.gameState.redPlayer.renderTiles(this.hexes);
-    }
-
-    resize(): void {
-        console.log("Resizing game renderer");
-    }
-
-    private initialize() {
+    static initialize() {
         // Create a hex grid
         const hexSize = 50;
         const hexWidth = Math.sqrt(3) * hexSize;
@@ -56,7 +22,7 @@ export class GameRenderer implements Renderer {
                 const y = row * 3 / 4 * hexHeight;
 
                 const hex = new Hex(
-                    this.ctx,
+                    Game.ctx,
                     x,
                     y,
                     hexWidth,
@@ -64,7 +30,7 @@ export class GameRenderer implements Renderer {
                     "id " + (row * hexesInRow + column).toString(),
                     row * hexesInRow + column,
                     () => {
-                        this.gameState.hexClicked(row * hexesInRow + column);
+                        GameStateService.hexClicked(row * hexesInRow + column);
                     }
                 );
 
@@ -73,5 +39,21 @@ export class GameRenderer implements Renderer {
             }
         }
     }
+
+    static render(): void {
+        // render all hexes
+        for (const hex of this.hexes) {
+            hex.render();
+        }
+
+        // render game titles
+        GameStateService.bluePlayer.renderTiles(this.hexes);
+        GameStateService.redPlayer.renderTiles(this.hexes);
+    }
+    
+    static resize(): void {
+        console.log("Resizing game renderer");
+    }
+
 
 }

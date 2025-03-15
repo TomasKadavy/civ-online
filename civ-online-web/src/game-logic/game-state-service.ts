@@ -3,26 +3,24 @@ import { WebSocketService } from "../web-socket/web-socket-service";
 import { PlayerService } from "./player-service";
 
 export class GameStateService {
-    bluePlayer: PlayerService;
-    redPlayer: PlayerService;
-    currentPlayer: PlayerService;
-    webSocketService: WebSocketService;
-    game: Game;
-    hasSelected = false;
+    static bluePlayer: PlayerService;
+    static redPlayer: PlayerService;
+    static currentPlayer: PlayerService;
+    static webSocketService: WebSocketService;
+    static game: Game;
+    static hasSelected = false;
 
-    constructor(webSocket: WebSocketService, game: Game) {
-        this.game = game;
+    static initialize() {
         this.bluePlayer = new PlayerService('Tom', 'blue');
         this.redPlayer = new PlayerService('Petr', 'red');
         this.currentPlayer = this.bluePlayer;
-        this.webSocketService = webSocket;
     }
 
-    changeTurn() {
+    static changeTurn() {
         this.currentPlayer = this.currentPlayer === this.bluePlayer ? this.redPlayer : this.bluePlayer;
     }
 
-    hexClicked(hexIndex: number) {
+    static hexClicked(hexIndex: number) {
         // check if the hex is already taken
         if (this.bluePlayer.tiles.includes(hexIndex) || this.redPlayer.tiles.includes(hexIndex)) { 
             return;
@@ -34,18 +32,18 @@ export class GameStateService {
         }
 
         this.currentPlayer.addHex(hexIndex);
-        this.webSocketService.sendMessage({ type: 'event', gameId: this.game.gameId, message: hexIndex.toString() });
+        WebSocketService.sendMessage({ type: 'event', gameId: Game.gameId, message: hexIndex.toString() });
         this.changeTurn();
         this.hasSelected = true;
     }
 
-    handleSocketMessage(event: MessageEvent) {
+    static handleSocketMessage(event: MessageEvent) {
         const JSONMessage = JSON.parse(event.data) as { type: string, message: string };
         console.log("GameStateService received message:", event.data, JSONMessage);
 
         switch (JSONMessage.type) {
             case 'connection':
-                this.webSocketService.webSocketId = JSONMessage.message;
+                WebSocketService.webSocketId = JSONMessage.message;
                 break;
             case 'event':
                 this.currentPlayer.addHex(parseInt(JSONMessage.message));

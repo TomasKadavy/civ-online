@@ -1,29 +1,23 @@
 import { Game } from "../game";
 import { Button, Clickable } from "../UI/button";
-import { Renderer } from "./renderer";
 
-export class MenuRenderer implements Renderer {
-    clickables: Clickable[] = [];
-    ctx: CanvasRenderingContext2D;
-    game: Game;
+export class MenuRenderer {
+    static clickables: Clickable[] = [];
+    static gameId: string = '';
 
-    gameId: string = '';
-
-    constructor(ctx: CanvasRenderingContext2D, game: Game) {
-        this.ctx = ctx;
-        this.game = game;
-
-        const canvasWidth = this.ctx.canvas.width;
+    static initialize() {
+        console.log()
+        const canvasWidth = Game.ctx.canvas.width;
         const buttonWidth = 600;
         const buttonHeight = 150;
-
+    
         document.getElementById('lobby-id')?.addEventListener('input', (event) => {
             const target = event.target as HTMLInputElement;
             this.gameId = target.value;
         });
-
+    
         this.clickables.push(new Button(
-            this.ctx,
+            Game.ctx,
             (canvasWidth - buttonWidth) / 2,
             100,
             buttonWidth,
@@ -34,25 +28,26 @@ export class MenuRenderer implements Renderer {
                     alert('Please enter a game ID');
                     return;
                 }
-                this.game.startActualGame(this.gameId);
+                Game.startActualGame(this.gameId);
                 this.changeRightMenu();
             }
         ));
     }
 
-    render(): void {
+
+    static render(): void {
         this.clickables.forEach((clickable) => {
             clickable.render();
         });
     }
 
-    resize(): void {
+    static resize(): void {
         this.clickables.forEach((clickable) => {
             clickable.resize();
         });
     }
 
-    private changeRightMenu() {
+    static changeRightMenu() {
         const menuWrapper = document.getElementById('menu-wrapper');
         const gameWrapper = document.getElementById('game-wrapper');
         if (menuWrapper) {

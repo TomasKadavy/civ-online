@@ -2,7 +2,7 @@ import { PlayerService } from "../game-logic/player-service";
 import { Clickable } from "./button";
 import { HEX } from "./constants";
 
-export default class Hex implements Clickable {
+export class Hex implements Clickable {
     ctx: CanvasRenderingContext2D;
     x: number;
     y: number;

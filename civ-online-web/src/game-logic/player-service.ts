@@ -1,4 +1,4 @@
-import Hex from "../UI/hex";
+import { Hex } from "../UI/hex";
 
 export type PlayerColor = 'red' | 'blue' | 'green' | 'yellow';
 
