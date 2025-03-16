@@ -8,9 +8,18 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class GameWebSocket extends TextWebSocketHandler {
 
     private final List<WebSocketSession> sessions = new ArrayList<>();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final ConnectionService connectionService;
+
+    GameWebSocket(ConnectionService connectionService) {
+        this.connectionService = connectionService;
+    }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
@@ -39,23 +48,45 @@ public class GameWebSocket extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
         System.out.println("Received message: " + payload + " from " + session.getId());
+
+        var parsedPayload = objectMapper.readValue(payload, GameMessage.class);
+        ConnectionReturnType connectionReturnType = connectionService.handleMessage(parsedPayload, session.getId());
+        switch (connectionReturnType) {
+            case FIRST_PLAYER:
+                GameMessage first = new GameMessage(ConnectionReturnType.FIRST_PLAYER.toString(), session.getId());
+                session.sendMessage(new TextMessage(first.toString()));
+                break;
+            case SECOND_PLAYER:
+                GameMessage second = new GameMessage(ConnectionReturnType.SECOND_PLAYER.toString(), session.getId());
+                this.broadcastMessage(second.toString(), true);
+                break;
+            case GAME_FULL:
+                GameMessage full = new GameMessage(ConnectionReturnType.GAME_FULL.toString(), session.getId());
+                session.sendMessage(new TextMessage(full.toString()));
+                break;
         
-        for (WebSocketSession s : sessions) {
-            if (s.isOpen()) {
-                if (!s.getId().equals(session.getId())) {
-                    s.sendMessage(message);
-                }
-            }
+            case UNKNOWN:
+                // Unknown
+                break;
         }
+
+        //broadcastMessage(payload, false);
     
     }
 
     // Sends a message to all connected clients
-    public void broadcastMessage(String message) throws IOException {
+    public void broadcastMessage(String message, boolean sendToSame) throws IOException {
+        // GameMessage message = new GameMessage("connection", session.getId());
         TextMessage textMessage = new TextMessage(message);
         for (WebSocketSession session : sessions) {
             if (session.isOpen()) {
-                session.sendMessage(textMessage);
+                if (sendToSame) {
+                    session.sendMessage(textMessage);
+                } else {
+                    if (!session.getId().equals(session.getId())) {
+                        session.sendMessage(textMessage);
+                    }
+                }
             }
         }
     }

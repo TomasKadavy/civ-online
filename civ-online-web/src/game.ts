@@ -60,9 +60,7 @@ export class Game {
         this.currentRenderer = GameRenderer;
     }
 
-    static handleSocketMessage(event: MessageEvent) {
-        GameStateService.handleSocketMessage(event);
-    }
+
 
     //The game loop using requestAnimationFrame
     static gameLoop(time: number): number {

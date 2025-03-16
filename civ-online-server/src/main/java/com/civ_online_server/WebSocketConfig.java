@@ -10,6 +10,12 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
+    private final ConnectionService connectionService;
+
+    public WebSocketConfig(ConnectionService connectionService) {
+        this.connectionService = connectionService;
+    }
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(gameWebSocketHandler(), "/game")
@@ -18,6 +24,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
     
     @Bean
     public GameWebSocket gameWebSocketHandler() {
-        return new GameWebSocket();
+        return new GameWebSocket(connectionService);
     }
 }
