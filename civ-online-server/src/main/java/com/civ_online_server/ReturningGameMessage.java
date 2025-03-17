@@ -2,10 +2,10 @@ package com.civ_online_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public record GameMessage(String type, String message) {
+public record ReturningGameMessage(ReturnMessageType type, String gameId, String message) {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public GameMessage {
+    public ReturningGameMessage {
         if (type == null || message == null) {
             throw new IllegalArgumentException("type and message must not be null");
         }

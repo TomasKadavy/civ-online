@@ -25,12 +25,12 @@ public class GameWebSocket extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
         sessions.add(session);
         System.out.println("New connection established: " + session.getId());
-        try {
-            GameMessage message = new GameMessage("connection", session.getId());
-            session.sendMessage(new TextMessage(message.toString()));
-        } catch (Exception e) {
-            System.out.println("Error sending message to " + session.getId() + ": " + e.getMessage());
-        }
+        // try {
+        //     GameMessage message = new GameMessage("connection", session.getId());
+        //     session.sendMessage(new TextMessage(message.toString()));
+        // } catch (Exception e) {
+        //     System.out.println("Error sending message to " + session.getId() + ": " + e.getMessage());
+        // }
     }
 
     @Override
@@ -47,31 +47,43 @@ public class GameWebSocket extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
-        System.out.println("Received message: " + payload + " from " + session.getId());
 
-        var parsedPayload = objectMapper.readValue(payload, GameMessage.class);
-        ConnectionReturnType connectionReturnType = connectionService.handleMessage(parsedPayload, session.getId());
-        switch (connectionReturnType) {
-            case FIRST_PLAYER:
-                GameMessage first = new GameMessage(ConnectionReturnType.FIRST_PLAYER.toString(), session.getId());
-                session.sendMessage(new TextMessage(first.toString()));
-                break;
-            case SECOND_PLAYER:
-                GameMessage second = new GameMessage(ConnectionReturnType.SECOND_PLAYER.toString(), session.getId());
-                this.broadcastMessage(second.toString(), true);
-                break;
-            case GAME_FULL:
-                GameMessage full = new GameMessage(ConnectionReturnType.GAME_FULL.toString(), session.getId());
-                session.sendMessage(new TextMessage(full.toString()));
-                break;
+        IncomingGameMessage incomingGameMessage = objectMapper.readValue(payload, IncomingGameMessage.class);
         
-            case UNKNOWN:
-                // Unknown
+        switch (incomingGameMessage.type()) {
+            case ADD_PLAYER:
+                ReturnMessageType type = connectionService.handleGameId(incomingGameMessage.gameId(), session.getId());
+                if (type == ReturnMessageType.WAITING) {
+                    ReturningGameMessage returnMessage = new ReturningGameMessage(
+                        ReturnMessageType.WAITING,
+                        incomingGameMessage.gameId(),
+                        session.getId()
+                    );
+                    session.sendMessage(new TextMessage(returnMessage.toString()));
+                }
+                if (type == ReturnMessageType.START_GAME) {
+                    ReturningGameMessage returnMessage = new ReturningGameMessage(
+                        ReturnMessageType.START_GAME,
+                        incomingGameMessage.gameId(),
+                        session.getId()
+                    );
+                    this.broadcastMessage(returnMessage.toString(), true);
+    
+                }
+                if (type == ReturnMessageType.GAME_FULL) {
+                    ReturningGameMessage full = new ReturningGameMessage(
+                        ReturnMessageType.GAME_FULL,
+                        incomingGameMessage.gameId(),
+                        session.getId()
+                    );
+                    session.sendMessage(new TextMessage(full.toString()));
+                }
+                break;
+            case EVENT:
+                break;
+            default:
                 break;
         }
-
-        //broadcastMessage(payload, false);
-    
     }
 
     // Sends a message to all connected clients

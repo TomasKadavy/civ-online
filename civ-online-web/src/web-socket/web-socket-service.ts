@@ -3,6 +3,25 @@ import { GameStateService } from "../game-logic/game-state-service";
 
 export const URL = 'ws://localhost:8080/game';
 
+// Same enum as in JAVA
+export enum ReturnType {
+    START_GAME = "START_GAME",
+    GAME_FULL = "GAME_FULL",
+    WAITING = "WAITING",
+    EVENT = "EVENT",
+}
+
+export enum SendingType {
+    ADD_PLAYER = "ADD_PLAYER",
+    EVENT = "EVENT",
+}
+
+export type WSMessage = {
+    type: ReturnType | SendingType;
+    gameId: string;
+    message: string;
+}
+
 export class WebSocketService {
     static webSocket: WebSocket | null = null;
     static webSocketId: string = "";
@@ -13,26 +32,23 @@ export class WebSocketService {
         this.addEventListeners();
     }
 
-    static sendMessage(message: {type: string, gameId: string, message: string}): void {
+    static sendMessage(message: WSMessage): void {
         this.webSocket?.send(JSON.stringify(message));
     }
 
     static addEventListeners(): void {
         this.webSocket?.addEventListener('open', (event) => {
-            console.log("WebSocket connection opened:", event);
-            this.webSocket?.send(JSON.stringify({ type: "gameId", message: Game.gameId }))
+            const message: WSMessage = { type: SendingType.ADD_PLAYER, gameId: Game.gameId, message: Game.gameId };
+            this.sendMessage(message);
         });
 
         this.webSocket?.addEventListener('close', (event) => {
-            console.log("WebSocket connection closed:", event);
         });
 
         this.webSocket?.addEventListener('error', (event) => {
-            console.error("WebSocket error:", event);
         });
 
         this.webSocket?.addEventListener('message', (event) => {
-            console.log("WebSocket message received:", event.data);
             GameStateService.handleSocketMessage(event);
         });
     }

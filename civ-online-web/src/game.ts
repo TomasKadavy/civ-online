@@ -2,6 +2,7 @@ import { EventListeners } from "./event-listeners";
 import { GameStateService } from "./game-logic/game-state-service";
 import { GameRenderer } from "./rendering/game-renderer";
 import { MenuRenderer } from "./rendering/menu-renderer";
+import { WaitingRoomRenderer } from "./rendering/waiting-room-renderer";
 import { WebSocketService } from "./web-socket/web-socket-service";
 
 // The main game class having all the game states and logic
@@ -53,9 +54,11 @@ export class Game {
         // }
     }
 
-    static startActualGame(gameId: string) {
-        this.gameId = gameId;
-        WebSocketService.startConnection();
+    static startWaitingRoom() {
+        this.currentRenderer = WaitingRoomRenderer;
+    }
+
+    static startActualGame() {
         GameRenderer.initialize();
         this.currentRenderer = GameRenderer;
     }

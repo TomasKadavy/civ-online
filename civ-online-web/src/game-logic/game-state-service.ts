@@ -1,5 +1,6 @@
 import { Game } from "../game";
-import { WebSocketService } from "../web-socket/web-socket-service";
+import { MenuRenderer } from "../rendering/menu-renderer";
+import { WebSocketService, WSMessage, SendingType, ReturnType } from "../web-socket/web-socket-service";
 import { PlayerService } from "./player-service";
 
 export class GameStateService {
@@ -32,23 +33,29 @@ export class GameStateService {
         }
 
         this.currentPlayer.addHex(hexIndex);
-        WebSocketService.sendMessage({ type: 'event', gameId: Game.gameId, message: hexIndex.toString() });
+        const message: WSMessage = { type: SendingType.EVENT, gameId: Game.gameId, message: hexIndex.toString() }
+        WebSocketService.sendMessage(message);
         this.changeTurn();
         this.hasSelected = true;
     }
 
     static handleSocketMessage(event: MessageEvent) {
-        const JSONMessage = JSON.parse(event.data) as { type: string, message: string };
-        console.log("GameStateService received message:", event.data, JSONMessage);
+        const JSONMessage = JSON.parse(event.data) as WSMessage;
+        console.log("Received message:", event.data, JSONMessage);
 
         switch (JSONMessage.type) {
-            case 'connection':
+            case ReturnType.WAITING:
                 WebSocketService.webSocketId = JSONMessage.message;
                 break;
-            case 'event':
-                this.currentPlayer.addHex(parseInt(JSONMessage.message));
-                this.changeTurn();
-                this.hasSelected = false;
+            case ReturnType.START_GAME:
+                // Start the game with both players connected
+                Game.startActualGame();
+                MenuRenderer.changeRightMenu();
+                break;
+            case ReturnType.EVENT:
+                // this.currentPlayer.addHex(parseInt(JSONMessage.message));
+                // this.changeTurn();
+                // this.hasSelected = false;
                 break;
             default:
                 console.error('Unknown type:', JSONMessage.type);

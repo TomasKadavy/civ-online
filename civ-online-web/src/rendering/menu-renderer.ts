@@ -1,12 +1,12 @@
 import { Game } from "../game";
 import { Button, Clickable } from "../UI/button";
+import { WaitingRoomRenderer } from "./waiting-room-renderer";
 
 export class MenuRenderer {
     static clickables: Clickable[] = [];
     static gameId: string = '';
 
     static initialize() {
-        console.log()
         const canvasWidth = Game.ctx.canvas.width;
         const buttonWidth = 600;
         const buttonHeight = 150;
@@ -28,8 +28,12 @@ export class MenuRenderer {
                     alert('Please enter a game ID');
                     return;
                 }
-                Game.startActualGame(this.gameId);
-                this.changeRightMenu();
+                
+                // Waiting room
+                WaitingRoomRenderer.initialize();
+                Game.gameId = this.gameId;
+                Game.startWaitingRoom();
+                this.hideAllRightMenues();
             }
         ));
     }
@@ -56,5 +60,16 @@ export class MenuRenderer {
         if (gameWrapper) {
             gameWrapper.style.display = 'flex';
         }   
+    }
+
+    static hideAllRightMenues() {
+        const menuWrapper = document.getElementById('menu-wrapper');
+        const gameWrapper = document.getElementById('game-wrapper');
+        if (menuWrapper) {
+            menuWrapper.style.display = 'none';
+        }
+        if (gameWrapper) {
+            gameWrapper.style.display = 'none';
+        } 
     }
 }
