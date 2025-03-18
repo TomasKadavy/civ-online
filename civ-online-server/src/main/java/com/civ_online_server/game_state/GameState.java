@@ -9,8 +9,6 @@ public class GameState {
     public static final int BOARD_SIZE = 100;
 
     public String gameId;
-    public String playerOne;
-    public String playerTwo;
     public String turn;
 
     @JsonProperty("board")
@@ -19,12 +17,10 @@ public class GameState {
     // Only for jackson
     GameState() {}
 
-    GameState(String gameId, String playerOne, String playerTwo) {
+    GameState(String gameId, String turn) {
         this.gameId = gameId;
-        this.playerOne = playerOne;
-        this.playerTwo = playerTwo;
         //TODO decide who goes first
-        this.turn = playerOne;
+        this.turn = turn;
 
         this.populateBoard();
     }

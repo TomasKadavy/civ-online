@@ -7,6 +7,7 @@ export type PlayerTile = {
 export class GameState {
     // key = hexIndex, Value = PlayerTile
     static tiles: Map<number, PlayerTile> = new Map<number, PlayerTile>();
+    static turn = "";
 
     static toJSON(): string {
         const tilesObject: { [key: number]: { owner: string, building: string } } = {};
@@ -14,6 +15,12 @@ export class GameState {
         for (const [key, value] of this.tiles.entries()) {
             tilesObject[key] = value;
         }
-        return JSON.stringify(tilesObject);
+
+        const gameStateObject = {
+            turn: this.turn,
+            board: tilesObject
+        };
+
+        return JSON.stringify(gameStateObject);
     }
 }

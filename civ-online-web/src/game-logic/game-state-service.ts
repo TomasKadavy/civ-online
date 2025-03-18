@@ -16,7 +16,14 @@ export class GameStateService {
             return;
         }
 
+        // check if it is player`s turn
+        if (GameState.turn !== "" && GameState.turn !== GameConfig.playerId) {
+            console.log("RETURNED WRONG turn", GameState.turn, "palyer", GameConfig.playerId);
+            return;
+        }
+
         GameState.tiles.set(hexIndex, { owner: GameConfig.playerId, building: "", hexIndex });
+        GameState.turn = GameConfig.opponentId;
         const message: WSMessage = { type: SendingType.EVENT, gameId: GameConfig.gameId, message: GameState.toJSON() }
         WebSocketService.sendMessage(message);
     }
@@ -44,6 +51,7 @@ export class GameStateService {
                 break;
             case ReturnType.EVENT:
                 const messageParsed = JSON.parse(JSONMessage.message);
+                GameState.turn = messageParsed.turn;
                 for (const [hexIndex, tile] of Object.entries(messageParsed.board)) {
                     const playerTile = tile as PlayerTile;
                     GameState.tiles.set(Number(hexIndex), { owner: playerTile.owner, building: playerTile.building, hexIndex: Number(hexIndex)});
