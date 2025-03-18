@@ -1,61 +1,53 @@
 import { Game } from "../game";
 import { MenuRenderer } from "../rendering/menu-renderer";
 import { WebSocketService, WSMessage, SendingType, ReturnType } from "../web-socket/web-socket-service";
-import { PlayerService } from "./player-service";
+import { GameConfig } from "./game-config";
+import { GameState, PlayerTile } from "./game-state";
 
 export class GameStateService {
-    static bluePlayer: PlayerService;
-    static redPlayer: PlayerService;
-    static currentPlayer: PlayerService;
-    static webSocketService: WebSocketService;
-    static game: Game;
-    static hasSelected = false;
-
     static initialize() {
-        this.bluePlayer = new PlayerService('Tom', 'blue');
-        this.redPlayer = new PlayerService('Petr', 'red');
-        this.currentPlayer = this.bluePlayer;
-    }
 
-    static changeTurn() {
-        this.currentPlayer = this.currentPlayer === this.bluePlayer ? this.redPlayer : this.bluePlayer;
     }
 
     static hexClicked(hexIndex: number) {
         // check if the hex is already taken
-        if (this.bluePlayer.tiles.includes(hexIndex) || this.redPlayer.tiles.includes(hexIndex)) { 
+        const existingTile = GameState.tiles.get(hexIndex);
+        if (existingTile && existingTile.owner !== null) {
             return;
         }
 
-        //user already clicked on a hex
-        if (this.hasSelected) {
-            return;
-        }
-
-        this.currentPlayer.addHex(hexIndex);
-        const message: WSMessage = { type: SendingType.EVENT, gameId: Game.gameId, message: hexIndex.toString() }
+        GameState.tiles.set(hexIndex, { owner: GameConfig.playerId, building: "", hexIndex });
+        const message: WSMessage = { type: SendingType.EVENT, gameId: GameConfig.gameId, message: GameState.toJSON() }
         WebSocketService.sendMessage(message);
-        this.changeTurn();
-        this.hasSelected = true;
     }
 
     static handleSocketMessage(event: MessageEvent) {
         const JSONMessage = JSON.parse(event.data) as WSMessage;
-        console.log("Received message:", event.data, JSONMessage);
+        //console.log("Received message:", event.data, JSONMessage);
 
         switch (JSONMessage.type) {
             case ReturnType.WAITING:
-                WebSocketService.webSocketId = JSONMessage.message;
+                GameConfig.playerId = JSONMessage.message;
                 break;
             case ReturnType.START_GAME:
                 // Start the game with both players connected
+                const ids = JSONMessage.message.split(";");
+                if (GameConfig.playerId === "") {
+                    GameConfig.opponentId = ids[0];
+                    GameConfig.playerId = ids[1];
+                } else {
+                    GameConfig.opponentId = ids[1];
+                }
+
                 Game.startActualGame();
                 MenuRenderer.changeRightMenu();
                 break;
             case ReturnType.EVENT:
-                // this.currentPlayer.addHex(parseInt(JSONMessage.message));
-                // this.changeTurn();
-                // this.hasSelected = false;
+                const messageParsed = JSON.parse(JSONMessage.message);
+                for (const [hexIndex, tile] of Object.entries(messageParsed.board)) {
+                    const playerTile = tile as PlayerTile;
+                    GameState.tiles.set(Number(hexIndex), { owner: playerTile.owner, building: playerTile.building, hexIndex: Number(hexIndex)});
+                }
                 break;
             default:
                 console.error('Unknown type:', JSONMessage.type);

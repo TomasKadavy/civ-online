@@ -1,4 +1,5 @@
 import { Game } from "../game";
+import { GameConfig } from "../game-logic/game-config";
 import { Button, Clickable } from "../UI/button";
 import { WaitingRoomRenderer } from "./waiting-room-renderer";
 
@@ -31,7 +32,7 @@ export class MenuRenderer {
                 
                 // Waiting room
                 WaitingRoomRenderer.initialize();
-                Game.gameId = this.gameId;
+                GameConfig.gameId = this.gameId;
                 Game.startWaitingRoom();
                 this.hideAllRightMenues();
             }

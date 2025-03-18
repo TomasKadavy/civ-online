@@ -1,4 +1,3 @@
-import { PlayerService } from "../game-logic/player-service";
 import { Clickable } from "./button";
 import { HEX } from "./constants";
 
@@ -83,7 +82,7 @@ export class Hex implements Clickable {
         this.ctx.fillText(this.text, this.x + hexWidth / 2, this.y + hexHeight / 2);
     }
 
-    renderPlayerTitle(player: PlayerService) {
+    renderPlayerTile(player: string) {
         // Slightly smaller hexagon
         const hexHeight = this.height * 0.9;
         const hexWidth = Math.sqrt(3) / 2 * hexHeight;
@@ -91,7 +90,7 @@ export class Hex implements Clickable {
         const offsetX = (this.width - hexWidth) / 2;
         const offsetY = (this.height - hexHeight) / 2;
 
-        this.ctx.fillStyle = player.color;
+        this.ctx.fillStyle = player;
         this.ctx.beginPath();
         this.ctx.moveTo(this.x + offsetX + hexWidth / 2, this.y + offsetY);
         this.ctx.lineTo(this.x + offsetX + hexWidth, this.y + offsetY + hexHeight / 4);
@@ -101,5 +100,22 @@ export class Hex implements Clickable {
         this.ctx.lineTo(this.x + offsetX, this.y + offsetY + hexHeight / 4);
         this.ctx.closePath();
         this.ctx.fill();
+    }
+
+    idToColor(id: string): string {
+        // Hash the string into a numeric value
+        let hash = 0;
+        for (let i = 0; i < id.length; i++) {
+            hash = id.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        // Convert the hash to a hexadecimal color
+        let color = "#";
+        for (let i = 0; i < 3; i++) {
+            const value = (hash >> (i * 8)) & 0xff;
+            color += ("00" + value.toString(16)).slice(-2);
+        }
+
+        return color;
     }
 }

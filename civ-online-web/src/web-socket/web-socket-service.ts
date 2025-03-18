@@ -1,4 +1,4 @@
-import { Game } from "../game";
+import { GameConfig } from "../game-logic/game-config";
 import { GameStateService } from "../game-logic/game-state-service";
 
 export const URL = 'ws://localhost:8080/game';
@@ -24,21 +24,21 @@ export type WSMessage = {
 
 export class WebSocketService {
     static webSocket: WebSocket | null = null;
-    static webSocketId: string = "";
 
     static startConnection(): void {
         this.webSocket = new WebSocket(URL);
-        console.log("WebSocket connection created:", this.webSocket);
+        //console.log("WebSocket connection created:", this.webSocket);
         this.addEventListeners();
     }
 
     static sendMessage(message: WSMessage): void {
+        //console.log("SENDING", JSON.stringify(message))
         this.webSocket?.send(JSON.stringify(message));
     }
 
     static addEventListeners(): void {
         this.webSocket?.addEventListener('open', (event) => {
-            const message: WSMessage = { type: SendingType.ADD_PLAYER, gameId: Game.gameId, message: Game.gameId };
+            const message: WSMessage = { type: SendingType.ADD_PLAYER, gameId: GameConfig.gameId, message: GameConfig.gameId };
             this.sendMessage(message);
         });
 

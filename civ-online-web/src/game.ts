@@ -13,8 +13,6 @@ export class Game {
     static gameState: GameStateService;
     static webSocketService: WebSocketService;
 
-    static gameId: string = '';
-
     static initialize(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx
         this.currentRenderer = MenuRenderer;
@@ -63,14 +61,10 @@ export class Game {
         this.currentRenderer = GameRenderer;
     }
 
-
-
     //The game loop using requestAnimationFrame
     static gameLoop(time: number): number {
         this.ctx.reset();
         this.currentRenderer.render();
         return requestAnimationFrame((t) => this.gameLoop(t));
     }
-
-
 }

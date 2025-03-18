@@ -6,9 +6,14 @@ public class Tile {
     // Todo create class for each game object
     public String building;
 
-    public Tile(String owner, String building) {
+    public int hexIndex;
+
+    public Tile() {}
+
+    public Tile(String owner, String building, int hexIndex) {
         this.owner = owner;
         this.building = building;
+        this.hexIndex = hexIndex;
     }
 
 }

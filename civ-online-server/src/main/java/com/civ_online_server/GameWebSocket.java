@@ -8,6 +8,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.civ_online_server.game_state.GameService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GameWebSocket extends TextWebSocketHandler {
@@ -16,9 +17,11 @@ public class GameWebSocket extends TextWebSocketHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final ConnectionService connectionService;
+    private final GameService gameService;
 
-    GameWebSocket(ConnectionService connectionService) {
+    GameWebSocket(ConnectionService connectionService, GameService gameService) {
         this.connectionService = connectionService;
+        this.gameService = gameService;
     }
 
     @Override
@@ -62,11 +65,13 @@ public class GameWebSocket extends TextWebSocketHandler {
                     session.sendMessage(new TextMessage(returnMessage.toString()));
                 }
                 if (type == ReturnMessageType.START_GAME) {
+                    var game = connectionService.games.get(incomingGameMessage.gameId());
                     ReturningGameMessage returnMessage = new ReturningGameMessage(
                         ReturnMessageType.START_GAME,
                         incomingGameMessage.gameId(),
-                        session.getId()
+                        game[0] + ";" + game[1]
                     );
+                    this.gameService.startGame(incomingGameMessage.gameId(), game[0], game[1]);
                     this.broadcastMessage(returnMessage.toString(), true);
     
                 }
@@ -80,6 +85,13 @@ public class GameWebSocket extends TextWebSocketHandler {
                 }
                 break;
             case EVENT:
+                this.gameService.handleEvent(incomingGameMessage);
+                ReturningGameMessage gameEventMessage = new ReturningGameMessage(
+                    ReturnMessageType.EVENT,
+                    incomingGameMessage.gameId(),
+                    this.gameService.gameStateToJSON(incomingGameMessage.gameId())
+                );
+                broadcastMessage(gameEventMessage.toString(), true);
                 break;
             default:
                 break;

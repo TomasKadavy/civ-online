@@ -6,20 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ConnectionService {
-    ConcurrentHashMap<String, String[]> games = new ConcurrentHashMap<>();
-    // public SocketMessageType handleMessage(GameMessage gameMessage, String socketConnectionId) {
-    //     String type = gameMessage.type();
-    //     String message = gameMessage.message();
-
-    //     switch (type) {
-    //         case "gameId":
-    //             return handleGameId(message, socketConnectionId);
-
-    //         default:
-    //             return SocketMessageType.UNKNOWN;
-    //     }
-    // }
-
+    public ConcurrentHashMap<String, String[]> games = new ConcurrentHashMap<>();
 
     public ReturnMessageType handleGameId(String gameId, String socketConnectionId) {
         var game = games.get(gameId);

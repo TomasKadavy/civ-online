@@ -1,4 +1,5 @@
 import { Game } from "../game";
+import { GameConfig } from "../game-logic/game-config";
 import { Clickable } from "../UI/button";
 import { WebSocketService } from "../web-socket/web-socket-service";
 
@@ -23,7 +24,7 @@ export class WaitingRoomRenderer {
         Game.ctx.textBaseline = 'middle';
 
         // Draw the text
-        const text = `Waiting for other player in room: ${Game.gameId}`;
+        const text = `Waiting for other player in room: ${GameConfig.gameId}`;
         Game.ctx.fillText(text, canvas.width / 2, canvas.height / 2);
     }
 }

@@ -1,4 +1,5 @@
 import { Game } from "../game";
+import { GameState } from "../game-logic/game-state";
 import { GameStateService } from "../game-logic/game-state-service";
 import { Clickable } from "../UI/button";
 import { Hex } from "../UI/hex";
@@ -46,11 +47,20 @@ export class GameRenderer {
             hex.render();
         }
 
-        // render game titles
-        GameStateService.bluePlayer.renderTiles(this.hexes);
-        GameStateService.redPlayer.renderTiles(this.hexes);
+        // render game titles (objects/buildings)
+        this.renderTiles();
     }
     
+    static renderTiles() {
+        for (const [hexIndex, tile] of GameState.tiles.entries()) {
+            const hex = this.hexes[hexIndex];
+            if (tile?.owner && hex) {
+                const color = hex.idToColor(tile.owner);
+                hex.renderPlayerTile(color);
+            }
+        }
+    }
+
     static resize(): void {
         console.log("Resizing game renderer");
     }

@@ -1,16 +1,4 @@
-import { PlayerService } from "../game-logic/player-service";
-
 export class CivPlayerPanel extends HTMLElement {
-    private _playerState: PlayerService | null = null;
-
-    set playerState(value: PlayerService) {
-        this._playerState = value;
-        this.render();
-    }
-
-    get playerState(): PlayerService  | null{
-        return this._playerState;
-    }
 
     static get observedAttributes() {
         return ['playerState'];
