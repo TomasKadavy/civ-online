@@ -3,6 +3,7 @@ import { MenuRenderer } from "../rendering/menu-renderer";
 import { WebSocketService, WSMessage, SendingType, ReturnType } from "../web-socket/web-socket-service";
 import { GameConfig } from "./game-config";
 import { GameState, PlayerTile } from "./game-state";
+import { PlayerState } from "./player-state";
 
 export class GameStateService {
     static initialize() {
@@ -30,7 +31,7 @@ export class GameStateService {
 
     static handleSocketMessage(event: MessageEvent) {
         const JSONMessage = JSON.parse(event.data) as WSMessage;
-        //console.log("Received message:", event.data, JSONMessage);
+        //console.log("Received message:", JSONMessage);
 
         switch (JSONMessage.type) {
             case ReturnType.WAITING:
@@ -51,10 +52,17 @@ export class GameStateService {
                 break;
             case ReturnType.EVENT:
                 const messageParsed = JSON.parse(JSONMessage.message);
-                GameState.turn = messageParsed.turn;
+                
+                // Update the tiles
                 for (const [hexIndex, tile] of Object.entries(messageParsed.board)) {
                     const playerTile = tile as PlayerTile;
-                    GameState.tiles.set(Number(hexIndex), { owner: playerTile.owner, building: playerTile.building, hexIndex: Number(hexIndex)});
+                    GameState.tiles.set(Number(hexIndex), { owner: playerTile.owner, building: playerTile.building, hexIndex: Number(hexIndex) });
+                }
+
+                // Update the playerStates
+                for (const [playerId, playerState] of Object.entries(messageParsed.playerStates)) {
+                    const updatedPlayerState = playerState as PlayerState;
+                    GameState.playerStates.set(playerId, updatedPlayerState);
                 }
                 break;
             case ReturnType.GAME_FULL:

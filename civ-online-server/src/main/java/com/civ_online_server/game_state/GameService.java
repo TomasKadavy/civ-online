@@ -34,7 +34,7 @@ public class GameService {
     }
 
     public void startGame(String gameId, String playerOne, String playerTwo) {
-        this.games.put(gameId, new GameState(gameId, playerOne));
+        this.games.put(gameId, new GameState(gameId, playerOne, playerTwo));
     }
 
     public String gameStateToJSON(String gameId) {
