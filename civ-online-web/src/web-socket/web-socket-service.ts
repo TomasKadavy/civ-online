@@ -43,6 +43,7 @@ export class WebSocketService {
         });
 
         this.webSocket?.addEventListener('close', (event) => {
+            GameStateService.resetGame();
         });
 
         this.webSocket?.addEventListener('error', (event) => {

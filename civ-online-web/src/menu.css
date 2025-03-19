@@ -12,3 +12,8 @@
     border-color: #333;
     outline: none;
 }
+
+#menu-wrapper {
+    display: flex;
+    flex-direction: column;
+}

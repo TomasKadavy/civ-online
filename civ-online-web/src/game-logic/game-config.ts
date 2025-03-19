@@ -4,5 +4,10 @@ export class GameConfig {
     static playerId = "";
     static opponentId = "";
 
+    static reset() {
+        this.gameId = "";
+        this.playerId = "";
+        this.opponentId = "";
+    }
 }
 

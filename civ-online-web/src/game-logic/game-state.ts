@@ -23,4 +23,9 @@ export class GameState {
 
         return JSON.stringify(gameStateObject);
     }
+
+    static reset() {
+        this.tiles = new Map<number, PlayerTile>();
+        this.turn = "";
+    }
 }

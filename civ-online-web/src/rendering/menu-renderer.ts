@@ -52,7 +52,7 @@ export class MenuRenderer {
         });
     }
 
-    static changeRightMenu() {
+    static changeRightMenuForGame() {
         const menuWrapper = document.getElementById('menu-wrapper');
         const gameWrapper = document.getElementById('game-wrapper');
         if (menuWrapper) {
@@ -60,6 +60,17 @@ export class MenuRenderer {
         }
         if (gameWrapper) {
             gameWrapper.style.display = 'flex';
+        }   
+    }
+
+    static changeRightMenuForMenu() {
+        const menuWrapper = document.getElementById('menu-wrapper');
+        const gameWrapper = document.getElementById('game-wrapper');
+        if (menuWrapper) {
+            menuWrapper.style.display = 'flex';
+        }
+        if (gameWrapper) {
+            gameWrapper.style.display = 'none';
         }   
     }
 

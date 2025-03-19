@@ -1,8 +1,6 @@
 package com.civ_online_server;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -13,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GameWebSocket extends TextWebSocketHandler {
 
-    private final List<WebSocketSession> sessions = new ArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final ConnectionService connectionService;
@@ -26,20 +23,20 @@ public class GameWebSocket extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
-        sessions.add(session);
         System.out.println("New connection established: " + session.getId());
-        // try {
-        //     GameMessage message = new GameMessage("connection", session.getId());
-        //     session.sendMessage(new TextMessage(message.toString()));
-        // } catch (Exception e) {
-        //     System.out.println("Error sending message to " + session.getId() + ": " + e.getMessage());
-        // }
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) {
-        sessions.remove(session);
         System.out.println("Connection closed: " + session.getId() + " with status " + status);
+        WebSocketSession secondGameSession = this.connectionService.removeGame(session);
+        try {
+            if (secondGameSession != null) {
+                secondGameSession.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -55,7 +52,7 @@ public class GameWebSocket extends TextWebSocketHandler {
         
         switch (incomingGameMessage.type()) {
             case ADD_PLAYER:
-                ReturnMessageType type = connectionService.handleGameId(incomingGameMessage.gameId(), session.getId());
+                ReturnMessageType type = connectionService.handleGameId(incomingGameMessage.gameId(), session);
                 if (type == ReturnMessageType.WAITING) {
                     ReturningGameMessage returnMessage = new ReturningGameMessage(
                         ReturnMessageType.WAITING,
@@ -69,11 +66,10 @@ public class GameWebSocket extends TextWebSocketHandler {
                     ReturningGameMessage returnMessage = new ReturningGameMessage(
                         ReturnMessageType.START_GAME,
                         incomingGameMessage.gameId(),
-                        game[0] + ";" + game[1]
+                        game[0].getId() + ";" + game[1].getId()
                     );
-                    this.gameService.startGame(incomingGameMessage.gameId(), game[0], game[1]);
-                    this.broadcastMessage(returnMessage.toString(), true);
-    
+                    this.gameService.startGame(incomingGameMessage.gameId(), game[0].getId(), game[1].getId());
+                    this.connectionService.broadcastMessage(incomingGameMessage.gameId(), returnMessage.toString());
                 }
                 if (type == ReturnMessageType.GAME_FULL) {
                     ReturningGameMessage full = new ReturningGameMessage(
@@ -91,27 +87,10 @@ public class GameWebSocket extends TextWebSocketHandler {
                     incomingGameMessage.gameId(),
                     this.gameService.gameStateToJSON(incomingGameMessage.gameId())
                 );
-                broadcastMessage(gameEventMessage.toString(), true);
+                this.connectionService.broadcastMessage(incomingGameMessage.gameId(), gameEventMessage.toString());
                 break;
             default:
                 break;
-        }
-    }
-
-    // Sends a message to all connected clients
-    public void broadcastMessage(String message, boolean sendToSame) throws IOException {
-        // GameMessage message = new GameMessage("connection", session.getId());
-        TextMessage textMessage = new TextMessage(message);
-        for (WebSocketSession session : sessions) {
-            if (session.isOpen()) {
-                if (sendToSame) {
-                    session.sendMessage(textMessage);
-                } else {
-                    if (!session.getId().equals(session.getId())) {
-                        session.sendMessage(textMessage);
-                    }
-                }
-            }
         }
     }
 }

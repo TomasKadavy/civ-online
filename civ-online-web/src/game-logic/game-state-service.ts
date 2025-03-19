@@ -47,7 +47,7 @@ export class GameStateService {
                 }
 
                 Game.startActualGame();
-                MenuRenderer.changeRightMenu();
+                MenuRenderer.changeRightMenuForGame();
                 break;
             case ReturnType.EVENT:
                 const messageParsed = JSON.parse(JSONMessage.message);
@@ -57,8 +57,22 @@ export class GameStateService {
                     GameState.tiles.set(Number(hexIndex), { owner: playerTile.owner, building: playerTile.building, hexIndex: Number(hexIndex)});
                 }
                 break;
+            case ReturnType.GAME_FULL:
+                this.resetGame();
+                break;
             default:
                 console.error('Unknown type:', JSONMessage.type);
+        }
+    }
+
+    static resetGame() {
+        GameConfig.reset();
+        GameState.reset();
+        Game.currentRenderer = MenuRenderer;
+        MenuRenderer.changeRightMenuForMenu();
+        const lobbyInput = document.getElementById("lobby-id") as HTMLInputElement;
+        if (lobbyInput) {
+            lobbyInput.value = "";
         }
     }
 
