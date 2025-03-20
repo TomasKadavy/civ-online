@@ -102,7 +102,7 @@ export class Hex implements Clickable {
         this.ctx.fill();
     }
 
-    idToColor(id: string): string {
+    static idToColor(id: string): string {
         // Hash the string into a numeric value
         let hash = 0;
         for (let i = 0; i < id.length; i++) {

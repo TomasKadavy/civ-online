@@ -8,10 +8,37 @@ export type PlayerTile = {
 
 export class GameState {
     // key = hexIndex, Value = PlayerTile
-    static tiles = new Map<number, PlayerTile>();
+    private static _tiles = new Map<number, PlayerTile>();
     // key = playerId (socket id), Value = PlayerState
-    static playerStates = new Map<string, PlayerState>();
-    static turn = "";
+    private static _playerStates = new Map<string, PlayerState>();
+    private static _turn = "";
+
+    static get tiles(): Map<number, PlayerTile> {
+        return this._tiles;
+    }
+
+    static set tiles(value: Map<number, PlayerTile>) {
+        this._tiles = value;
+        this.notifyChange();
+    }
+
+    static get playerStates(): Map<string, PlayerState> {
+        return this._playerStates;
+    }
+
+    static set playerStates(value: Map<string, PlayerState>) {
+        this._playerStates = value;
+        this.notifyChange();
+    }
+
+    static get turn(): string {
+        return this._turn;
+    }
+
+    static set turn(value: string) {
+        this._turn = value;
+        this.notifyChange();
+    }
 
     static toJSON(): string {
         const tilesObject: { [key: number]: PlayerTile } = {};
@@ -34,7 +61,14 @@ export class GameState {
     }
 
     static reset() {
-        this.tiles = new Map<number, PlayerTile>();
-        this.turn = "";
+        this._tiles = new Map<number, PlayerTile>();
+        this._playerStates = new Map<string, PlayerState>();
+        this._turn = "";
+        this.notifyChange();
+    }
+
+    static notifyChange() {
+        const event = new CustomEvent("game-state-changed");
+        window.dispatchEvent(event);
     }
 }

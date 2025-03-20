@@ -55,7 +55,7 @@ export class GameRenderer {
         for (const [hexIndex, tile] of GameState.tiles.entries()) {
             const hex = this.hexes[hexIndex];
             if (tile?.owner && hex) {
-                const color = hex.idToColor(tile.owner);
+                const color = Hex.idToColor(tile.owner);
                 hex.renderPlayerTile(color);
             }
         }
