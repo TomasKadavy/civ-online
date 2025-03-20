@@ -42,11 +42,12 @@ export class GameStateService {
                 const ids = JSONMessage.message.split(";");
                 if (GameConfig.playerId === "") {
                     GameConfig.opponentId = ids[0];
-                    GameConfig.playerId = ids[1];
+                    GameConfig.playerId = ids[1];                    
                 } else {
                     GameConfig.opponentId = ids[1];
                 }
-
+                
+                GameState.turn = ids[0];
                 Game.startActualGame();
                 MenuRenderer.changeRightMenuForGame();
                 break;
@@ -64,6 +65,9 @@ export class GameStateService {
                     const updatedPlayerState = playerState as PlayerState;
                     GameState.playerStates.set(playerId, updatedPlayerState);
                 }
+                
+                // Update the turn
+                GameState.turn = messageParsed.turn;
                 break;
             case ReturnType.GAME_FULL:
                 this.resetGame();
