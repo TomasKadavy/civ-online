@@ -2,7 +2,7 @@ package com.civ_online_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public record IncomingGameMessage(IncomingMessageType type, String gameId, String message) {
+public record IncomingGameMessage(IncomingMessageType type, String gameId, String playerId, String message) {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public IncomingGameMessage {

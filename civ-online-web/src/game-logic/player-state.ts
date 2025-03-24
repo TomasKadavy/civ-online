@@ -1,5 +1,5 @@
 export class PlayerState {
-    private static _gold: number = 0;
+    private static _gold: number = 10;
 
     static get gold(): number {
         return this._gold;
@@ -17,5 +17,9 @@ export class PlayerState {
     static notifyChange() {
         const event = new CustomEvent('player-state-changed');
         window.dispatchEvent(event);
+    }
+
+    static reset() {
+        this.gold = 10;
     }
 }

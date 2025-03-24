@@ -20,14 +20,23 @@ public class GameService {
         try {
             GameState incomingState = objectMapper.readValue(incomingGameMessage.message(), GameState.class);
             String gameId = incomingGameMessage.gameId();
+            String playerId = incomingGameMessage.playerId();
             GameState game = this.games.get(gameId);
+
+            // update player state
+            game.playerStates.put(playerId, incomingState.getCurrenPlayerState());
+            // TODO correctly change gold based on action
+            incomingState.getCurrenPlayerState().gold -= 1;
 
             for (Map.Entry<Integer, Tile> entry : incomingState.board.entrySet()) {
                 Integer tileId = entry.getKey();
                 Tile tile = entry.getValue();
                 game.board.put(tileId, tile);
             }
+
+            // Set next player turn and player state
             game.turn = incomingState.turn;
+            game.setCurrenPlayerState(game.playerStates.get(incomingState.turn));
         } catch (IOException e) {
             e.printStackTrace();
         }

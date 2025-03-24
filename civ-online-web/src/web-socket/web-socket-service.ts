@@ -19,6 +19,7 @@ export enum SendingType {
 export type WSMessage = {
     type: ReturnType | SendingType;
     gameId: string;
+    playerId: string
     message: string;
 }
 
@@ -38,7 +39,7 @@ export class WebSocketService {
 
     static addEventListeners(): void {
         this.webSocket?.addEventListener('open', (event) => {
-            const message: WSMessage = { type: SendingType.ADD_PLAYER, gameId: GameConfig.gameId, message: GameConfig.gameId };
+            const message: WSMessage = { type: SendingType.ADD_PLAYER, gameId: GameConfig.gameId, message: GameConfig.gameId, playerId: GameConfig.playerId };
             this.sendMessage(message);
         });
 

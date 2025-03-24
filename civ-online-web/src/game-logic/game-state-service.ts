@@ -23,9 +23,15 @@ export class GameStateService {
             return;
         }
 
+        // check if player has enough gold
+        if (PlayerState.gold <= 0) {
+            console.log("Not enough gold!");
+            return; 
+        }
+
         GameState.tiles.set(hexIndex, { owner: GameConfig.playerId, building: "", hexIndex });
         GameState.turn = GameConfig.opponentId;
-        const message: WSMessage = { type: SendingType.EVENT, gameId: GameConfig.gameId, message: GameState.toJSON() }
+        const message: WSMessage = { type: SendingType.EVENT, gameId: GameConfig.gameId, message: GameState.toJSON(), playerId: GameConfig.playerId }
         WebSocketService.sendMessage(message);
     }
 
@@ -60,11 +66,9 @@ export class GameStateService {
                     GameState.tiles.set(Number(hexIndex), { owner: playerTile.owner, building: playerTile.building, hexIndex: Number(hexIndex) });
                 }
 
-                // Update the playerStates
-                for (const [playerId, playerState] of Object.entries(messageParsed.playerStates)) {
-                    const updatedPlayerState = playerState as PlayerState;
-                    GameState.playerStates.set(playerId, updatedPlayerState);
-                }
+                // Update the playerState
+                console.log("message parsed", messageParsed, "playerState", messageParsed.playerState);
+                PlayerState.gold = messageParsed.playerState?.gold;
                 
                 // Update the turn
                 GameState.turn = messageParsed.turn;
