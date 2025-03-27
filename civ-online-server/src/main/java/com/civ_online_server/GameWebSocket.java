@@ -7,6 +7,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.civ_online_server.game_state.GameService;
+import com.civ_online_server.persistance.GameTurnService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GameWebSocket extends TextWebSocketHandler {
@@ -15,10 +16,12 @@ public class GameWebSocket extends TextWebSocketHandler {
 
     private final ConnectionService connectionService;
     private final GameService gameService;
+    private final GameTurnService gameTurnService;
 
-    GameWebSocket(ConnectionService connectionService, GameService gameService) {
+    GameWebSocket(ConnectionService connectionService, GameService gameService, GameTurnService gameTurnService) {
         this.connectionService = connectionService;
         this.gameService = gameService;
+        this.gameTurnService = gameTurnService;
     }
 
     @Override
@@ -70,6 +73,7 @@ public class GameWebSocket extends TextWebSocketHandler {
                     );
                     this.gameService.startGame(incomingGameMessage.gameId(), game[0].getId(), game[1].getId());
                     this.connectionService.broadcastMessage(incomingGameMessage.gameId(), returnMessage.toString());
+                    this.gameTurnService.createGameTurn(game[0].getId() + ";" + game[1].getId());
                 }
                 if (type == ReturnMessageType.GAME_FULL) {
                     ReturningGameMessage full = new ReturningGameMessage(

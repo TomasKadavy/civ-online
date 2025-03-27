@@ -26,3 +26,4 @@ replay_pid*
 # web
 node_modules/
 .DS_Store
+civ-online-server/data/demo.trace.db
